@@ -51,7 +51,7 @@ export default function OnboardingScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#FFFFFF', '#F0F9FF', '#E0F2FE']}
+        colors={['#1a1625', '#2d1b3d', '#1f1533']}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -110,7 +110,7 @@ export default function OnboardingScreen() {
           activeOpacity={0.8}
         >
           <LinearGradient
-            colors={['#3b82f6', '#2563eb']}
+            colors={['#ec4899', '#d946ef', '#a855f7']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.buttonGradient}
@@ -139,7 +139,7 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1a1625',
   },
   gradient: {
     position: 'absolute',
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   skipText: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'rgba(0, 0, 0, 0.5)',
+    color: 'rgba(255, 255, 255, 0.6)',
   },
   scrollView: {
     flex: 1,
@@ -183,10 +183,15 @@ const styles = StyleSheet.create({
   dot: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#ec4899',
+    shadowColor: '#ec4899',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 4,
   },
   dotActive: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#ec4899',
   },
   nextButton: {
     width: '100%',
@@ -194,10 +199,10 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#3b82f6',
+    shadowColor: '#ec4899',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
+    shadowOpacity: 0.6,
+    shadowRadius: 24,
     elevation: 8,
   },
   buttonGradient: {

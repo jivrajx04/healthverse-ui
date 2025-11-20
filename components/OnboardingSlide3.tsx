@@ -29,7 +29,7 @@ export default function OnboardingSlide3() {
             }}
             style={styles.brainIconWrapper}
           >
-            <Brain size={56} color="#f59e0b" strokeWidth={1.5} />
+            <Brain size={56} color="#d946ef" strokeWidth={1.5} />
           </MotiView>
 
           <MotiView
@@ -38,7 +38,7 @@ export default function OnboardingSlide3() {
             transition={{ delay: 600, duration: 400 }}
             style={[styles.badge, styles.badgeLeft]}
           >
-            <Lock size={16} color="#f59e0b" strokeWidth={2} />
+            <Lock size={16} color="#d946ef" strokeWidth={2} />
           </MotiView>
 
           <MotiView
@@ -47,7 +47,7 @@ export default function OnboardingSlide3() {
             transition={{ delay: 700, duration: 400 }}
             style={[styles.badge, styles.badgeRight]}
           >
-            <Sparkles size={16} color="#f59e0b" strokeWidth={2} />
+            <Sparkles size={16} color="#d946ef" strokeWidth={2} />
           </MotiView>
         </View>
 
@@ -96,22 +96,23 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 28,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(45, 27, 61, 0.7)',
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.2)',
+    borderColor: 'rgba(236, 72, 153, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#f59e0b',
+    shadowColor: '#ec4899',
     shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.25,
-    shadowRadius: 24,
+    shadowOpacity: 0.5,
+    shadowRadius: 28,
     position: 'relative',
+    elevation: 8,
   },
   brainIconWrapper: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+    backgroundColor: 'rgba(217, 70, 239, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -120,15 +121,16 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(45, 27, 61, 0.9)',
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    borderColor: 'rgba(217, 70, 239, 0.4)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#f59e0b',
+    shadowColor: '#d946ef',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 4,
   },
   badgeLeft: {
     left: -10,
@@ -143,7 +145,7 @@ const styles = StyleSheet.create({
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: '#f59e0b',
+    backgroundColor: '#ec4899',
     zIndex: -1,
   },
   textContainer: {
@@ -153,7 +155,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 36,
     fontWeight: '700',
-    color: '#1a1a2e',
+    color: '#ffffff',
     textAlign: 'center',
     marginBottom: 16,
     letterSpacing: -0.5,
@@ -161,7 +163,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 17,
     fontWeight: '400',
-    color: '#6b7280',
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
     lineHeight: 26,
   },

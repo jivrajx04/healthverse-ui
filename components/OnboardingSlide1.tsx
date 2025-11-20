@@ -23,7 +23,7 @@ export default function OnboardingSlide1() {
           }}
           style={styles.iconCircle}
         >
-          <Activity size={80} color="#3b82f6" strokeWidth={1.5} />
+          <Activity size={80} color="#ec4899" strokeWidth={1.5} />
         </MotiView>
 
         <MotiView
@@ -71,18 +71,23 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(59, 130, 246, 0.08)',
+    backgroundColor: 'rgba(236, 72, 153, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.2)',
+    borderColor: 'rgba(236, 72, 153, 0.3)',
+    shadowColor: '#ec4899',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.4,
+    shadowRadius: 24,
+    elevation: 8,
   },
   glowCircle: {
     position: 'absolute',
     width: 240,
     height: 240,
     borderRadius: 120,
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#ec4899',
     zIndex: -1,
   },
   textContainer: {
@@ -92,7 +97,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 36,
     fontWeight: '700',
-    color: '#1a1a2e',
+    color: '#ffffff',
     textAlign: 'center',
     marginBottom: 16,
     letterSpacing: -0.5,
@@ -100,7 +105,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 17,
     fontWeight: '400',
-    color: '#6b7280',
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
     lineHeight: 26,
   },
