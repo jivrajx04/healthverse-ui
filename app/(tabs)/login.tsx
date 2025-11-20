@@ -53,7 +53,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#0f1419', '#1a1f2e', '#0f1419']}
+        colors={['#1a2332', '#263549', '#1a2332']}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -200,7 +200,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f1419',
+    backgroundColor: '#1a2332',
   },
   gradient: {
     position: 'absolute',
@@ -254,11 +254,11 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
   },
   card: {
-    backgroundColor: 'rgba(30, 41, 59, 0.4)',
+    backgroundColor: 'rgba(45, 60, 85, 0.5)',
     borderRadius: 24,
     padding: 24,
     borderWidth: 1,
-    borderColor: 'rgba(148, 163, 184, 0.1)',
+    borderColor: 'rgba(148, 163, 184, 0.15)',
     marginBottom: 24,
   },
   label: {
@@ -271,37 +271,37 @@ const styles = StyleSheet.create({
   rolesContainer: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   roleWrapper: {
     flex: 1,
   },
   roleButton: {
-    backgroundColor: 'rgba(30, 41, 59, 0.6)',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: 'rgba(45, 60, 85, 0.6)',
+    borderRadius: 14,
+    padding: 12,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(148, 163, 184, 0.1)',
+    borderColor: 'rgba(148, 163, 184, 0.15)',
   },
   roleButtonSelected: {
     backgroundColor: 'rgba(59, 130, 246, 0.1)',
     borderColor: '#3b82f6',
   },
   iconWrapper: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: 'rgba(148, 163, 184, 0.1)',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: 'rgba(148, 163, 184, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   iconWrapperSelected: {
     backgroundColor: 'rgba(59, 130, 246, 0.15)',
   },
   roleText: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: 'Inter-Medium',
     color: '#94a3b8',
   },
@@ -317,14 +317,14 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(30, 41, 59, 0.6)',
+    backgroundColor: 'rgba(45, 60, 85, 0.6)',
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 4,
     borderWidth: 1,
     borderColor: 'rgba(148, 163, 184, 0.2)',
     marginBottom: 16,
-  },
+  }
   countryCode: {
     fontSize: 16,
     fontFamily: 'Inter-Medium',
