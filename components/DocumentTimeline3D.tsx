@@ -68,13 +68,13 @@ function TimelineNode({ doc, index, total, scrollY, onPress }: TimelineNodeProps
   const [hovered, setHovered] = useState(false);
 
   const color = getDocumentColor(doc.type);
-  const yPosition = -index * 3;
+  const yPosition = (total - 1 - index) * 2.5;
 
   useFrame((state) => {
     if (!meshRef.current || !groupRef.current) return;
 
-    const normalizedScroll = scrollY / (total * 150);
-    const targetY = yPosition + normalizedScroll * (total * 3);
+    const normalizedScroll = scrollY / (total * 120);
+    const targetY = yPosition - normalizedScroll * (total * 2.5);
 
     groupRef.current.position.y = THREE.MathUtils.lerp(
       groupRef.current.position.y,
@@ -83,10 +83,10 @@ function TimelineNode({ doc, index, total, scrollY, onPress }: TimelineNodeProps
     );
 
     const distanceFromCenter = Math.abs(groupRef.current.position.y);
-    const scale = THREE.MathUtils.lerp(1.2, 0.7, Math.min(distanceFromCenter / 6, 1));
-    const opacity = THREE.MathUtils.lerp(1, 0.3, Math.min(distanceFromCenter / 8, 1));
+    const scale = THREE.MathUtils.lerp(1, 0.5, Math.min(distanceFromCenter / 5, 1));
+    const opacity = THREE.MathUtils.lerp(1, 0.2, Math.min(distanceFromCenter / 8, 1));
 
-    meshRef.current.scale.setScalar(hovered ? scale * 1.15 : scale);
+    meshRef.current.scale.setScalar(hovered ? scale * 1.2 : scale);
 
     if (meshRef.current.material instanceof THREE.MeshStandardMaterial) {
       meshRef.current.material.opacity = opacity;
@@ -104,7 +104,7 @@ function TimelineNode({ doc, index, total, scrollY, onPress }: TimelineNodeProps
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
       >
-        <dodecahedronGeometry args={[0.5, 0]} />
+        <dodecahedronGeometry args={[0.4, 0]} />
         <meshStandardMaterial
           color={color}
           emissive={color}
@@ -117,7 +117,7 @@ function TimelineNode({ doc, index, total, scrollY, onPress }: TimelineNodeProps
       </mesh>
 
       <mesh position={[0, 0, 0]}>
-        <torusGeometry args={[0.7, 0.05, 16, 100]} />
+        <torusGeometry args={[0.6, 0.04, 16, 100]} />
         <meshStandardMaterial
           color={color}
           emissive={color}
@@ -139,17 +139,18 @@ function TimelineNode({ doc, index, total, scrollY, onPress }: TimelineNodeProps
 
 function TimelineSpine({ total, scrollY }: { total: number; scrollY: number }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const spineHeight = Math.max(total * 2.5, 10);
 
   useFrame(() => {
     if (!meshRef.current) return;
-    const normalizedScroll = scrollY / (total * 150);
-    meshRef.current.position.y = normalizedScroll * (total * 3);
+    const normalizedScroll = scrollY / (total * 120);
+    meshRef.current.position.y = ((total - 1) * 2.5) / 2 - normalizedScroll * (total * 2.5);
   });
 
   return (
     <group position={[0, 0, -1]}>
-      <mesh ref={meshRef}>
-        <cylinderGeometry args={[0.02, 0.02, total * 3, 32]} />
+      <mesh ref={meshRef} position={[0, ((total - 1) * 2.5) / 2, 0]}>
+        <cylinderGeometry args={[0.02, 0.02, spineHeight, 32]} />
         <meshStandardMaterial
           color="#6366F1"
           emissive="#6366F1"
@@ -299,9 +300,10 @@ export function DocumentTimeline3D({ documents, onUpload, onViewDocument }: Docu
 
           <Animated.ScrollView
             style={styles.scrollOverlay}
+            contentContainerStyle={styles.scrollContent}
             onScroll={scrollHandler}
             scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={true}
           >
             {sortedDocs.map((doc, index) => (
               <TouchableOpacity
@@ -325,6 +327,7 @@ export function DocumentTimeline3D({ documents, onUpload, onViewDocument }: Docu
                 </View>
               </TouchableOpacity>
             ))}
+            <View style={styles.scrollSpacer} />
           </Animated.ScrollView>
         </View>
 
@@ -516,8 +519,13 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 160,
+  },
+  scrollContent: {
     paddingVertical: 20,
     paddingHorizontal: 12,
+  },
+  scrollSpacer: {
+    height: 100,
   },
   docItem: {
     marginBottom: 12,
