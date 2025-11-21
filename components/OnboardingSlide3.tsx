@@ -1,7 +1,19 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
 import { Brain, Lock, Sparkles } from 'lucide-react-native';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+const isSmallScreen = SCREEN_WIDTH < 360;
+const isMediumScreen = SCREEN_WIDTH >= 360 && SCREEN_WIDTH < 400;
+const isShortScreen = SCREEN_HEIGHT < 700;
+
+const getResponsiveSize = (small: number, medium: number, large: number) => {
+  if (isSmallScreen) return small;
+  if (isMediumScreen) return medium;
+  return large;
+};
 
 export default function OnboardingSlide3() {
   return (
@@ -29,7 +41,7 @@ export default function OnboardingSlide3() {
             }}
             style={styles.brainIconWrapper}
           >
-            <Brain size={56} color="#f59e0b" strokeWidth={1.5} />
+            <Brain size={iconSize} color="#f59e0b" strokeWidth={1.5} />
           </MotiView>
 
           <MotiView
@@ -38,7 +50,7 @@ export default function OnboardingSlide3() {
             transition={{ delay: 600, duration: 400 }}
             style={[styles.badge, styles.badgeLeft]}
           >
-            <Lock size={16} color="#f59e0b" strokeWidth={2} />
+            <Lock size={badgeIconSize} color="#f59e0b" strokeWidth={2} />
           </MotiView>
 
           <MotiView
@@ -47,7 +59,7 @@ export default function OnboardingSlide3() {
             transition={{ delay: 700, duration: 400 }}
             style={[styles.badge, styles.badgeRight]}
           >
-            <Sparkles size={16} color="#f59e0b" strokeWidth={2} />
+            <Sparkles size={badgeIconSize} color="#f59e0b" strokeWidth={2} />
           </MotiView>
         </View>
 
@@ -79,47 +91,55 @@ export default function OnboardingSlide3() {
   );
 }
 
+const cardSize = getResponsiveSize(160, 180, 200);
+const iconWrapperSize = getResponsiveSize(80, 90, 100);
+const badgeSize = getResponsiveSize(36, 40, 44);
+const iconSize = getResponsiveSize(44, 50, 56);
+const badgeIconSize = getResponsiveSize(14, 15, 16);
+const glowSize = getResponsiveSize(220, 250, 280);
+const heroHeight = isShortScreen ? getResponsiveSize(200, 230, 260) : getResponsiveSize(240, 260, 280);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: getResponsiveSize(20, 24, 32),
   },
   heroContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 60,
-    height: 280,
+    marginBottom: isShortScreen ? 40 : 60,
+    height: heroHeight,
   },
   mainCard: {
-    width: 200,
-    height: 200,
-    borderRadius: 28,
+    width: cardSize,
+    height: cardSize,
+    borderRadius: getResponsiveSize(20, 24, 28),
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: 'rgba(245, 158, 11, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#f59e0b',
-    shadowOffset: { width: 0, height: 12 },
+    shadowOffset: { width: 0, height: isSmallScreen ? 8 : 12 },
     shadowOpacity: 0.25,
-    shadowRadius: 24,
+    shadowRadius: isSmallScreen ? 20 : 24,
     position: 'relative',
   },
   brainIconWrapper: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: iconWrapperSize,
+    height: iconWrapperSize,
+    borderRadius: iconWrapperSize / 2,
     backgroundColor: 'rgba(245, 158, 11, 0.08)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   badge: {
     position: 'absolute',
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: badgeSize,
+    height: badgeSize,
+    borderRadius: badgeSize / 2,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: 'rgba(245, 158, 11, 0.3)',
@@ -131,38 +151,39 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   badgeLeft: {
-    left: -10,
-    top: 40,
+    left: getResponsiveSize(-8, -9, -10),
+    top: getResponsiveSize(30, 35, 40),
   },
   badgeRight: {
-    right: -10,
-    bottom: 40,
+    right: getResponsiveSize(-8, -9, -10),
+    bottom: getResponsiveSize(30, 35, 40),
   },
   glowEffect: {
     position: 'absolute',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
+    width: glowSize,
+    height: glowSize,
+    borderRadius: glowSize / 2,
     backgroundColor: '#f59e0b',
     zIndex: -1,
   },
   textContainer: {
     alignItems: 'center',
-    maxWidth: 320,
+    maxWidth: SCREEN_WIDTH - 80,
+    paddingHorizontal: 16,
   },
   title: {
-    fontSize: 36,
+    fontSize: getResponsiveSize(28, 32, 36),
     fontWeight: '700',
     color: '#1a1a2e',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: isShortScreen ? 12 : 16,
     letterSpacing: -0.5,
   },
   description: {
-    fontSize: 17,
+    fontSize: getResponsiveSize(15, 16, 17),
     fontWeight: '400',
     color: '#6b7280',
     textAlign: 'center',
-    lineHeight: 26,
+    lineHeight: getResponsiveSize(22, 24, 26),
   },
 });

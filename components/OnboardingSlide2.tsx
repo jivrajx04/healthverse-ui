@@ -1,6 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+const isSmallScreen = SCREEN_WIDTH < 360;
+const isMediumScreen = SCREEN_WIDTH >= 360 && SCREEN_WIDTH < 400;
+const isShortScreen = SCREEN_HEIGHT < 700;
+
+const getResponsiveSize = (small: number, medium: number, large: number) => {
+  if (isSmallScreen) return small;
+  if (isMediumScreen) return medium;
+  return large;
+};
 
 export default function OnboardingSlide2() {
   return (
@@ -57,33 +69,37 @@ export default function OnboardingSlide2() {
   );
 }
 
+const imageSize = getResponsiveSize(200, 240, 280);
+const glowSize = getResponsiveSize(240, 280, 340);
+const heroHeight = isShortScreen ? getResponsiveSize(240, 280, 320) : getResponsiveSize(280, 320, 360);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: getResponsiveSize(20, 24, 32),
   },
   heroContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 60,
-    height: 360,
+    marginBottom: isShortScreen ? 40 : 60,
+    height: heroHeight,
   },
   imageContainer: {
-    width: 280,
-    height: 280,
-    borderRadius: 140,
+    width: imageSize,
+    height: imageSize,
+    borderRadius: imageSize / 2,
     overflow: 'hidden',
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 4,
+    borderWidth: isSmallScreen ? 3 : 4,
     borderColor: 'rgba(16, 185, 129, 0.35)',
     shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 12 },
+    shadowOffset: { width: 0, height: isSmallScreen ? 8 : 12 },
     shadowOpacity: 0.3,
-    shadowRadius: 24,
+    shadowRadius: isSmallScreen ? 20 : 24,
     elevation: 12,
   },
   familyImage: {
@@ -92,29 +108,30 @@ const styles = StyleSheet.create({
   },
   glowCircle: {
     position: 'absolute',
-    width: 340,
-    height: 340,
-    borderRadius: 170,
+    width: glowSize,
+    height: glowSize,
+    borderRadius: glowSize / 2,
     backgroundColor: '#10b981',
     zIndex: -1,
   },
   textContainer: {
     alignItems: 'center',
-    maxWidth: 320,
+    maxWidth: SCREEN_WIDTH - 80,
+    paddingHorizontal: 16,
   },
   title: {
-    fontSize: 36,
+    fontSize: getResponsiveSize(28, 32, 36),
     fontWeight: '700',
     color: '#1a1a2e',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: isShortScreen ? 12 : 16,
     letterSpacing: -0.5,
   },
   description: {
-    fontSize: 17,
+    fontSize: getResponsiveSize(15, 16, 17),
     fontWeight: '400',
     color: '#6b7280',
     textAlign: 'center',
-    lineHeight: 26,
+    lineHeight: getResponsiveSize(22, 24, 26),
   },
 });
