@@ -182,7 +182,7 @@ export default function DoctorHomeScreen() {
                 style={[styles.statCard, { backgroundColor: colors.cardBg, borderColor: colors.cardBorder }]}
               >
                 <View style={[styles.statIconWrapper, { backgroundColor: stat.bgColor }]}>
-                  <Icon size={22} color={stat.color} strokeWidth={2} />
+                  <Icon size={18} color={stat.color} strokeWidth={2} />
                 </View>
                 <Text style={[styles.statValue, { color: colors.text }]}>{stat.value}</Text>
                 <Text style={[styles.statLabel, { color: colors.text }]}>{stat.label}</Text>
@@ -366,37 +366,36 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 12,
     alignItems: 'center',
     borderWidth: 1,
-    gap: 8,
-    minHeight: 140,
+    gap: 6,
+    minHeight: 110,
   },
   statIconWrapper: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   statValue: {
-    fontSize: 28,
+    fontSize: 24,
     fontFamily: 'Inter-Bold',
     letterSpacing: -0.5,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: 'Inter-SemiBold',
     textAlign: 'center',
-    lineHeight: 16,
+    lineHeight: 14,
   },
   statSubtitle: {
-    fontSize: 10,
+    fontSize: 9,
     fontFamily: 'Inter-Regular',
     textAlign: 'center',
-    marginTop: 2,
   },
   section: {
     marginBottom: 24,

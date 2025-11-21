@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, Save, Check } from 'lucide-react-native';
+import { X, Save, Check, ChevronDown } from 'lucide-react-native';
 import { useTheme, lightTheme, darkTheme } from '../contexts/ThemeContext';
 
 interface LabTestFormProps {
@@ -24,6 +24,14 @@ const commonTests = [
   'Vitamin B12',
 ];
 
+const availableLabs = [
+  { id: 'lab_1', name: 'HealthCare Diagnostics', location: 'Medical Center, Building A' },
+  { id: 'lab_2', name: 'City Lab Services', location: 'Downtown Plaza, 2nd Floor' },
+  { id: 'lab_3', name: 'Advanced Testing Lab', location: 'Hospital Complex, Wing C' },
+  { id: 'lab_4', name: 'QuickTest Laboratory', location: 'Medical District, Suite 101' },
+  { id: 'lab_5', name: 'Premium Diagnostics', location: 'Central Hospital, Block B' },
+];
+
 export default function LabTestForm({ patientName, patientId, onSave, onClose }: LabTestFormProps) {
   const { isDark } = useTheme();
   const colors = isDark ? darkTheme : lightTheme;
@@ -32,6 +40,8 @@ export default function LabTestForm({ patientName, patientId, onSave, onClose }:
   const [customTest, setCustomTest] = useState('');
   const [notes, setNotes] = useState('');
   const [urgency, setUrgency] = useState<'routine' | 'urgent'>('routine');
+  const [selectedLab, setSelectedLab] = useState<typeof availableLabs[0] | null>(null);
+  const [showLabDropdown, setShowLabDropdown] = useState(false);
 
   const toggleTest = (test: string) => {
     if (selectedTests.includes(test)) {
@@ -55,12 +65,13 @@ export default function LabTestForm({ patientName, patientId, onSave, onClose }:
       tests: selectedTests,
       notes,
       urgency,
+      lab: selectedLab,
       date: new Date().toISOString(),
     };
     onSave(labTestData);
   };
 
-  const isValid = selectedTests.length > 0;
+  const isValid = selectedTests.length > 0 && selectedLab !== null;
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(0, 0, 0, 0.5)' }]}>
@@ -80,6 +91,27 @@ export default function LabTestForm({ patientName, patientId, onSave, onClose }:
           </View>
 
           <ScrollView style={styles.form} showsVerticalScrollIndicator={false}>
+            <View style={styles.section}>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Select Laboratory</Text>
+              <TouchableOpacity
+                onPress={() => setShowLabDropdown(true)}
+                style={[styles.labSelector, { backgroundColor: colors.cardBg, borderColor: colors.cardBorder }]}
+                activeOpacity={0.7}
+              >
+                {selectedLab ? (
+                  <View style={styles.selectedLabContent}>
+                    <View style={styles.selectedLabInfo}>
+                      <Text style={[styles.selectedLabName, { color: colors.text }]}>{selectedLab.name}</Text>
+                      <Text style={[styles.selectedLabLocation, { color: colors.textTertiary }]}>{selectedLab.location}</Text>
+                    </View>
+                  </View>
+                ) : (
+                  <Text style={[styles.labPlaceholder, { color: colors.textTertiary }]}>Choose a laboratory</Text>
+                )}
+                <ChevronDown size={20} color={colors.textSecondary} strokeWidth={2} />
+              </TouchableOpacity>
+            </View>
+
             <View style={styles.section}>
               <Text style={[styles.label, { color: colors.textSecondary }]}>Select Tests</Text>
               <View style={styles.testsGrid}>
@@ -225,6 +257,52 @@ export default function LabTestForm({ patientName, patientId, onSave, onClose }:
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      <Modal
+        visible={showLabDropdown}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLabDropdown(false)}
+      >
+        <View style={[styles.dropdownOverlay, { backgroundColor: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(0, 0, 0, 0.5)' }]}>
+          <View style={[styles.dropdownContent, { backgroundColor: colors.containerBg }]}>
+            <View style={styles.dropdownHeader}>
+              <Text style={[styles.dropdownTitle, { color: colors.text }]}>Select Laboratory</Text>
+              <TouchableOpacity onPress={() => setShowLabDropdown(false)}>
+                <X size={24} color={colors.text} strokeWidth={2} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.labList} showsVerticalScrollIndicator={false}>
+              {availableLabs.map((lab) => (
+                <TouchableOpacity
+                  key={lab.id}
+                  onPress={() => {
+                    setSelectedLab(lab);
+                    setShowLabDropdown(false);
+                  }}
+                  style={[
+                    styles.labOption,
+                    { backgroundColor: colors.cardBg, borderColor: colors.cardBorder },
+                    selectedLab?.id === lab.id && styles.labOptionSelected,
+                  ]}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.labOptionContent}>
+                    <Text style={[styles.labOptionName, { color: colors.text }]}>{lab.name}</Text>
+                    <Text style={[styles.labOptionLocation, { color: colors.textTertiary }]}>{lab.location}</Text>
+                  </View>
+                  {selectedLab?.id === lab.id && (
+                    <View style={styles.selectedCheckmark}>
+                      <Check size={18} color="#f59e0b" strokeWidth={3} />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -419,5 +497,89 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Inter-SemiBold',
     color: '#ffffff',
+  },
+  labSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  selectedLabContent: {
+    flex: 1,
+    marginRight: 12,
+  },
+  selectedLabInfo: {
+    gap: 2,
+  },
+  selectedLabName: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+  },
+  selectedLabLocation: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+  },
+  labPlaceholder: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+  },
+  dropdownOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  dropdownContent: {
+    width: '100%',
+    maxWidth: 400,
+    borderRadius: 20,
+    maxHeight: '70%',
+    overflow: 'hidden',
+  },
+  dropdownHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(99, 102, 241, 0.1)',
+  },
+  dropdownTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+  },
+  labList: {
+    padding: 16,
+  },
+  labOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 10,
+  },
+  labOptionSelected: {
+    borderColor: '#f59e0b',
+    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+  },
+  labOptionContent: {
+    flex: 1,
+    gap: 4,
+  },
+  labOptionName: {
+    fontSize: 15,
+    fontFamily: 'Inter-SemiBold',
+  },
+  labOptionLocation: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+  },
+  selectedCheckmark: {
+    marginLeft: 12,
   },
 });
