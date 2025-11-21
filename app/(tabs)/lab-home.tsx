@@ -1,139 +1,111 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MotiView } from 'moti';
-import { FlaskConical, FileText, Clock, CheckCircle2, Bell, Settings, Home, Search, Calendar, User, Sun, Moon, ChevronDown, ChevronUp } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { Clock, CheckCircle2, Bell, Settings, Home, Search, Calendar, User, Sun, Moon, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useTheme, lightTheme, darkTheme } from '../../contexts/ThemeContext';
+import { testRequestService, TestRequest as DBTestRequest, DashboardStats } from '../../services/TestRequestService';
 
-type TestStatus = 'pending' | 'processing' | 'completed';
 type FilterType = 'pending' | 'completed' | 'all';
 
-interface TestRequest {
-  id: number;
-  patient: string;
-  patientId: string;
-  doctor: string;
-  hospital: string;
-  tests: string[];
-  doctorNote: string;
-  status: TestStatus;
-  timestamp: string;
-  uploadedReports: number;
-  priority: 'high' | 'normal';
-}
+const getTimeAgo = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 
-const testRequestsData: TestRequest[] = [
-  {
-    id: 1,
-    patient: 'Robert Johnson',
-    patientId: 'P-101',
-    doctor: 'Dr. Mehta',
-    hospital: 'Yashwant Hospital, Pune',
-    tests: ['Complete Blood Count', 'Lipid Profile'],
-    doctorNote: 'Check anemia',
-    status: 'pending',
-    timestamp: '2 hours ago',
-    uploadedReports: 0,
-    priority: 'high',
-  },
-  {
-    id: 2,
-    patient: 'Linda Martinez',
-    patientId: 'P-102',
-    doctor: 'Dr. Sharma',
-    hospital: 'City Hospital, Mumbai',
-    tests: ['Lipid Profile'],
-    doctorNote: 'Regular checkup',
-    status: 'pending',
-    timestamp: '4 hours ago',
-    uploadedReports: 0,
-    priority: 'normal',
-  },
-  {
-    id: 3,
-    patient: 'David Wilson',
-    patientId: 'P-103',
-    doctor: 'Dr. Patel',
-    hospital: 'Apollo Hospital, Delhi',
-    tests: ['Thyroid Function Test'],
-    doctorNote: 'Follow-up test',
-    status: 'pending',
-    timestamp: '5 hours ago',
-    uploadedReports: 0,
-    priority: 'normal',
-  },
-  {
-    id: 4,
-    patient: 'Sarah Smith',
-    patientId: 'P-104',
-    doctor: 'Dr. Kumar',
-    hospital: 'Max Hospital, Bangalore',
-    tests: ['Blood Sugar', 'HbA1c'],
-    doctorNote: 'Diabetic patient monitoring',
-    status: 'completed',
-    timestamp: '8 hours ago',
-    uploadedReports: 2,
-    priority: 'normal',
-  },
-  {
-    id: 5,
-    patient: 'Michael Brown',
-    patientId: 'P-105',
-    doctor: 'Dr. Singh',
-    hospital: 'Fortis Hospital, Chennai',
-    tests: ['Liver Function Test'],
-    doctorNote: '',
-    status: 'completed',
-    timestamp: '10 hours ago',
-    uploadedReports: 1,
-    priority: 'normal',
-  },
-];
+  if (diffHours < 1) {
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+  } else if (diffHours < 24) {
+    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+  } else {
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+  }
+};
 
 export default function LabHomeScreen() {
   const router = useRouter();
   const { isDark, toggleTheme } = useTheme();
   const colors = isDark ? darkTheme : lightTheme;
   const [activeFilter, setActiveFilter] = useState<FilterType>('pending');
-  const [expandedCard, setExpandedCard] = useState<number | null>(null);
-  const [testRequests, setTestRequests] = useState<TestRequest[]>(testRequestsData);
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [testRequests, setTestRequests] = useState<DBTestRequest[]>([]);
+  const [stats, setStats] = useState<DashboardStats>({ pending: 0, completed: 0, total: 0 });
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const pendingCount = testRequests.filter(r => r.status === 'pending').length;
-  const completedCount = testRequests.filter(r => r.status === 'completed').length;
-  const totalCount = testRequests.length;
+  const loadData = async () => {
+    try {
+      const [requests, dashboardStats] = await Promise.all([
+        testRequestService.getTestRequests(activeFilter),
+        testRequestService.getDashboardStats(),
+      ]);
+      setTestRequests(requests);
+      setStats(dashboardStats);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const stats = [
-    { label: 'Pending Tests', value: pendingCount.toString(), icon: Clock, color: '#f59e0b', filter: 'pending' as FilterType },
-    { label: 'Completed', value: completedCount.toString(), icon: CheckCircle2, color: '#10b981', filter: 'completed' as FilterType },
-    { label: 'Total Today', value: totalCount.toString(), icon: FlaskConical, color: '#3b82f6', filter: 'all' as FilterType },
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [activeFilter]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [activeFilter])
+  );
+
+  const statCards = [
+    { label: 'Pending Tests', value: stats.pending.toString(), icon: Clock, color: '#f59e0b', filter: 'pending' as FilterType },
+    { label: 'Completed', value: stats.completed.toString(), icon: CheckCircle2, color: '#10b981', filter: 'completed' as FilterType },
+    { label: 'Total Today', value: stats.total.toString(), icon: Clock, color: '#3b82f6', filter: 'all' as FilterType },
   ];
 
-  const filteredRequests = testRequests.filter(request => {
-    if (activeFilter === 'all') return true;
-    return request.status === activeFilter;
-  });
+  const filteredRequests = testRequests;
 
-  const getStatusBadge = (status: TestStatus) => {
-    const statusConfig = {
+  const getStatusBadge = (status: string) => {
+    const statusConfig: Record<string, { label: string; color: string; emoji: string }> = {
       pending: { label: 'Pending', color: '#FFA500', emoji: '🟡' },
       processing: { label: 'Processing', color: '#007BFF', emoji: '🔵' },
       completed: { label: 'Completed', color: '#28A745', emoji: '🟢' },
     };
-    return statusConfig[status];
+    return statusConfig[status] || statusConfig.pending;
   };
 
-  const handleProcessRequest = (request: TestRequest) => {
+  const handleProcessRequest = (request: DBTestRequest) => {
     router.push({
       pathname: '/process-request',
       params: {
-        requestId: request.id.toString(),
+        requestId: request.id,
         requestData: JSON.stringify(request),
       },
     });
   };
 
-  const toggleCardExpansion = (id: number) => {
+  const handleViewReports = (request: DBTestRequest) => {
+    router.push({
+      pathname: '/view-reports',
+      params: {
+        requestId: request.id,
+        requestData: JSON.stringify(request),
+      },
+    });
+  };
+
+  const toggleCardExpansion = (id: string) => {
     setExpandedCard(expandedCard === id ? null : id);
   };
 
@@ -146,7 +118,13 @@ export default function LabHomeScreen() {
         end={{ x: 1, y: 1 }}
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={styles.header}>
           <View>
             <Text style={[styles.greeting, { color: colors.textSecondary }]}>Welcome</Text>
@@ -175,7 +153,7 @@ export default function LabHomeScreen() {
           transition={{ delay: 200, type: 'spring' }}
           style={styles.statsContainer}
         >
-          {stats.map((stat, index) => {
+          {statCards.map((stat, index) => {
             const Icon = stat.icon;
             const isActive = activeFilter === stat.filter;
             return (
@@ -254,7 +232,7 @@ export default function LabHomeScreen() {
                     <View style={styles.testInfo}>
                       <View style={styles.nameStatusRow}>
                         <Text style={[styles.patientName, { color: colors.text }]}>
-                          {request.patient}
+                          {request.patient_name}
                         </Text>
                         <View style={[styles.statusBadge, { backgroundColor: `${statusBadge.color}20` }]}>
                           <Text style={[styles.statusEmoji]}>{statusBadge.emoji}</Text>
@@ -267,7 +245,7 @@ export default function LabHomeScreen() {
                         {request.tests.join(', ')}
                       </Text>
                       <Text style={[styles.testTime, { color: colors.textSecondary }]}>
-                        {request.timestamp}
+                        {getTimeAgo(request.created_at)}
                       </Text>
 
                       {isExpanded && (
@@ -279,15 +257,15 @@ export default function LabHomeScreen() {
                         >
                           <View style={styles.expandedRow}>
                             <Text style={[styles.expandedLabel, { color: colors.textTertiary }]}>Patient ID:</Text>
-                            <Text style={[styles.expandedValue, { color: colors.text }]}>{request.patientId}</Text>
+                            <Text style={[styles.expandedValue, { color: colors.text }]}>{request.patient_id}</Text>
                           </View>
                           <View style={styles.expandedRow}>
                             <Text style={[styles.expandedLabel, { color: colors.textTertiary }]}>Doctor:</Text>
-                            <Text style={[styles.expandedValue, { color: colors.text }]}>{request.doctor}</Text>
+                            <Text style={[styles.expandedValue, { color: colors.text }]}>{request.doctor_name}</Text>
                           </View>
                           <View style={styles.expandedRow}>
                             <Text style={[styles.expandedLabel, { color: colors.textTertiary }]}>Hospital:</Text>
-                            <Text style={[styles.expandedValue, { color: colors.text }]}>{request.hospital}</Text>
+                            <Text style={[styles.expandedValue, { color: colors.text }]}>{request.hospital_name}</Text>
                           </View>
                           <View style={styles.expandedRow}>
                             <Text style={[styles.expandedLabel, { color: colors.textTertiary }]}>Tests:</Text>
@@ -295,19 +273,11 @@ export default function LabHomeScreen() {
                               {request.tests.join(', ')}
                             </Text>
                           </View>
-                          {request.doctorNote && (
+                          {request.doctor_note && (
                             <View style={styles.expandedRow}>
                               <Text style={[styles.expandedLabel, { color: colors.textTertiary }]}>Note:</Text>
                               <Text style={[styles.expandedValue, { color: colors.text }]}>
-                                "{request.doctorNote}"
-                              </Text>
-                            </View>
-                          )}
-                          {request.status === 'completed' && (
-                            <View style={styles.expandedRow}>
-                              <Text style={[styles.expandedLabel, { color: colors.textTertiary }]}>Reports:</Text>
-                              <Text style={[styles.expandedValue, { color: colors.text }]}>
-                                {request.uploadedReports} file(s) uploaded
+                                "{request.doctor_note}"
                               </Text>
                             </View>
                           )}
@@ -324,27 +294,32 @@ export default function LabHomeScreen() {
                   </View>
                 </TouchableOpacity>
 
-                {request.status === 'pending' ? (
-                  <TouchableOpacity
-                    style={styles.processButton}
-                    onPress={() => handleProcessRequest(request)}
-                  >
-                    <LinearGradient
-                      colors={['#f59e0b', '#d97706']}
-                      style={styles.processGradient}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
+                <View style={styles.actionButtonContainer}>
+                  {request.status === 'pending' ? (
+                    <TouchableOpacity
+                      style={styles.processButton}
+                      onPress={() => handleProcessRequest(request)}
                     >
-                      <Text style={styles.processText}>Process Request</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity style={styles.viewButton}>
-                    <View style={[styles.viewButtonInner, { backgroundColor: colors.accentLight }]}>
-                      <Text style={[styles.viewButtonText, { color: colors.accent }]}>View Reports</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
+                      <LinearGradient
+                        colors={['#f59e0b', '#d97706']}
+                        style={styles.processGradient}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                      >
+                        <Text style={styles.processText}>Process Request</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.viewButton}
+                      onPress={() => handleViewReports(request)}
+                    >
+                      <View style={[styles.viewButtonInner, { backgroundColor: colors.accentLight }]}>
+                        <Text style={[styles.viewButtonText, { color: colors.accent }]}>View Reports</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </MotiView>
             );
           })}
@@ -356,40 +331,6 @@ export default function LabHomeScreen() {
               </Text>
             </View>
           )}
-        </MotiView>
-
-        <MotiView
-          from={{ opacity: 0, translateY: 20 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{ delay: 1000, type: 'spring' }}
-          style={styles.quickActions}
-        >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
-          <View style={styles.actionsGrid}>
-            <TouchableOpacity style={styles.actionButton}>
-              <LinearGradient
-                colors={['#3b82f6', '#2563eb']}
-                style={styles.actionGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <FlaskConical size={24} color="#ffffff" strokeWidth={2} />
-                <Text style={styles.actionText}>New Test</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionButton}>
-              <LinearGradient
-                colors={['#10b981', '#059669']}
-                style={styles.actionGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <FileText size={24} color="#ffffff" strokeWidth={2} />
-                <Text style={styles.actionText}>Reports</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
         </MotiView>
       </ScrollView>
 
@@ -623,9 +564,14 @@ const styles = StyleSheet.create({
     color: '#1e293b',
     flex: 1,
   },
+  actionButtonContainer: {
+    alignItems: 'center',
+    marginTop: 4,
+  },
   processButton: {
     borderRadius: 12,
     overflow: 'hidden',
+    width: '70%',
   },
   processGradient: {
     paddingHorizontal: 16,
@@ -640,6 +586,7 @@ const styles = StyleSheet.create({
   viewButton: {
     borderRadius: 12,
     overflow: 'hidden',
+    width: '70%',
   },
   viewButtonInner: {
     paddingHorizontal: 16,
@@ -662,30 +609,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-Regular',
     color: '#94a3b8',
-  },
-  quickActions: {
-    marginBottom: 32,
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 16,
-  },
-  actionButton: {
-    flex: 1,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  actionGradient: {
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    gap: 8,
-  },
-  actionText: {
-    fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
-    color: '#ffffff',
   },
   bottomNav: {
     position: 'absolute',
