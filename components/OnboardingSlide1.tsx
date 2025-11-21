@@ -1,7 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Activity } from 'lucide-react-native';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+const isSmallScreen = SCREEN_WIDTH < 360;
+const isMediumScreen = SCREEN_WIDTH >= 360 && SCREEN_WIDTH < 400;
+const isShortScreen = SCREEN_HEIGHT < 700;
+
+const getResponsiveSize = (small: number, medium: number, large: number) => {
+  if (isSmallScreen) return small;
+  if (isMediumScreen) return medium;
+  return large;
+};
 
 export default function OnboardingSlide1() {
   return (
@@ -21,14 +32,18 @@ export default function OnboardingSlide1() {
             stiffness: 100,
             delay: 400,
           }}
-          style={styles.iconCircle}
+          style={styles.imageContainer}
         >
-          <Activity size={80} color="#3b82f6" strokeWidth={1.5} />
+          <Image
+            source={require('../assets/images/Gemini_Generated_Image_lf4jhdlf4jhdlf4j.png')}
+            style={styles.doctorImage}
+            resizeMode="cover"
+          />
         </MotiView>
 
         <MotiView
           from={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 0.3, scale: 1.2 }}
+          animate={{ opacity: 0.15, scale: 1.2 }}
           transition={{
             type: 'timing',
             duration: 2000,
@@ -45,63 +60,79 @@ export default function OnboardingSlide1() {
         transition={{ type: 'timing', duration: 600, delay: 600 }}
         style={styles.textContainer}
       >
-        <Text style={styles.title}>Your Health. Organized.</Text>
+        <Text style={styles.title}>Welcome to HealthVerse</Text>
         <Text style={styles.description}>
-          One place for all your medical records.
+          Your complete medical history,{"\n"}
+          unified in one secure place
         </Text>
       </MotiView>
     </View>
   );
 }
 
+const imageSize = getResponsiveSize(200, 240, 280);
+const glowSize = getResponsiveSize(240, 280, 340);
+const heroHeight = isShortScreen ? getResponsiveSize(240, 280, 320) : getResponsiveSize(280, 320, 360);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: getResponsiveSize(20, 24, 32),
   },
   heroContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 60,
-    height: 280,
+    marginBottom: isShortScreen ? 40 : 60,
+    height: heroHeight,
   },
-  iconCircle: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    backgroundColor: 'rgba(59, 130, 246, 0.08)',
+  imageContainer: {
+    width: imageSize,
+    height: imageSize,
+    borderRadius: imageSize / 2,
+    overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.2)',
+    borderWidth: isSmallScreen ? 3 : 4,
+    borderColor: 'rgba(59, 130, 246, 0.35)',
+    shadowColor: '#3b82f6',
+    shadowOffset: { width: 0, height: isSmallScreen ? 8 : 12 },
+    shadowOpacity: 0.3,
+    shadowRadius: isSmallScreen ? 16 : 20,
+    elevation: 12,
+  },
+  doctorImage: {
+    width: '100%',
+    height: '100%',
   },
   glowCircle: {
     position: 'absolute',
-    width: 240,
-    height: 240,
-    borderRadius: 120,
+    width: glowSize,
+    height: glowSize,
+    borderRadius: glowSize / 2,
     backgroundColor: '#3b82f6',
     zIndex: -1,
   },
   textContainer: {
     alignItems: 'center',
-    maxWidth: 320,
+    maxWidth: SCREEN_WIDTH - 80,
+    paddingHorizontal: 16,
   },
   title: {
-    fontSize: 36,
+    fontSize: getResponsiveSize(28, 32, 36),
     fontWeight: '700',
     color: '#1a1a2e',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: isShortScreen ? 12 : 16,
     letterSpacing: -0.5,
   },
   description: {
-    fontSize: 17,
+    fontSize: getResponsiveSize(15, 16, 17),
     fontWeight: '400',
     color: '#6b7280',
     textAlign: 'center',
-    lineHeight: 26,
+    lineHeight: getResponsiveSize(22, 24, 26),
   },
 });

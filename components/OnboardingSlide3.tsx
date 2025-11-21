@@ -1,168 +1,138 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Brain, Lock, Sparkles } from 'lucide-react-native';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+const isSmallScreen = SCREEN_WIDTH < 360;
+const isMediumScreen = SCREEN_WIDTH >= 360 && SCREEN_WIDTH < 400;
+const isShortScreen = SCREEN_HEIGHT < 700;
+
+const getResponsiveSize = (small: number, medium: number, large: number) => {
+  if (isSmallScreen) return small;
+  if (isMediumScreen) return medium;
+  return large;
+};
 
 export default function OnboardingSlide3() {
   return (
     <View style={styles.container}>
       <MotiView
-        from={{ opacity: 0, scale: 0.9, rotateY: '15deg' }}
-        animate={{ opacity: 1, scale: 1, rotateY: '0deg' }}
-        transition={{
-          type: 'spring',
-          damping: 15,
-          stiffness: 80,
-          delay: 200,
-        }}
+        from={{ opacity: 0, translateY: -30 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: 'timing', duration: 800, delay: 200 }}
         style={styles.heroContainer}
       >
-        <View style={styles.mainCard}>
-          <MotiView
-            from={{ scale: 0, rotate: '-180deg' }}
-            animate={{ scale: 1, rotate: '0deg' }}
-            transition={{
-              type: 'spring',
-              damping: 12,
-              stiffness: 100,
-              delay: 400,
-            }}
-            style={styles.brainIconWrapper}
-          >
-            <Brain size={56} color="#f59e0b" strokeWidth={1.5} />
-          </MotiView>
-
-          <MotiView
-            from={{ opacity: 0, translateX: -20 }}
-            animate={{ opacity: 1, translateX: 0 }}
-            transition={{ delay: 600, duration: 400 }}
-            style={[styles.badge, styles.badgeLeft]}
-          >
-            <Lock size={16} color="#f59e0b" strokeWidth={2} />
-          </MotiView>
-
-          <MotiView
-            from={{ opacity: 0, translateX: 20 }}
-            animate={{ opacity: 1, translateX: 0 }}
-            transition={{ delay: 700, duration: 400 }}
-            style={[styles.badge, styles.badgeRight]}
-          >
-            <Sparkles size={16} color="#f59e0b" strokeWidth={2} />
-          </MotiView>
-        </View>
+        <MotiView
+          from={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{
+            type: 'spring',
+            damping: 15,
+            stiffness: 100,
+            delay: 400,
+          }}
+          style={styles.imageContainer}
+        >
+          <Image
+            source={require('../assets/images/Gemini_Generated_Image_f91g9wf91g9wf91g.png')}
+            style={styles.brainImage}
+            resizeMode="cover"
+          />
+        </MotiView>
 
         <MotiView
-          from={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.2, scale: 1.3 }}
+          from={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 0.15, scale: 1.2 }}
           transition={{
             type: 'timing',
-            duration: 2500,
+            duration: 2000,
             loop: true,
             repeatReverse: true,
           }}
-          style={styles.glowEffect}
+          style={styles.glowCircle}
         />
       </MotiView>
 
       <MotiView
         from={{ opacity: 0, translateY: 30 }}
         animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'timing', duration: 600, delay: 800 }}
+        transition={{ type: 'timing', duration: 600, delay: 1000 }}
         style={styles.textContainer}
       >
         <Text style={styles.title}>Smart & Private</Text>
         <Text style={styles.description}>
-          AI-powered insights with total privacy.
+          AI-Powered {"\n"}
+          Smart Health Timeline
         </Text>
       </MotiView>
     </View>
   );
 }
 
+const imageSize = getResponsiveSize(200, 240, 280);
+const glowSize = getResponsiveSize(240, 280, 340);
+const heroHeight = isShortScreen ? getResponsiveSize(240, 280, 320) : getResponsiveSize(280, 320, 360);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: getResponsiveSize(20, 24, 32),
   },
   heroContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 60,
-    height: 280,
+    marginBottom: isShortScreen ? 40 : 60,
+    height: heroHeight,
   },
-  mainCard: {
-    width: 200,
-    height: 200,
-    borderRadius: 28,
+  imageContainer: {
+    width: imageSize,
+    height: imageSize,
+    borderRadius: imageSize / 2,
+    overflow: 'hidden',
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#f59e0b',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.25,
-    shadowRadius: 24,
-    position: 'relative',
+    borderWidth: isSmallScreen ? 3 : 4,
+    borderColor: 'rgba(59, 130, 246, 0.35)',
+    shadowColor: '#3b82f6',
+    shadowOffset: { width: 0, height: isSmallScreen ? 8 : 12 },
+    shadowOpacity: 0.3,
+    shadowRadius: isSmallScreen ? 16 : 20,
+    elevation: 12,
   },
-  brainIconWrapper: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'rgba(245, 158, 11, 0.08)',
-    alignItems: 'center',
-    justifyContent: 'center',
+  brainImage: {
+    width: '100%',
+    height: '100%',
   },
-  badge: {
+  glowCircle: {
     position: 'absolute',
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#f59e0b',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-  },
-  badgeLeft: {
-    left: -10,
-    top: 40,
-  },
-  badgeRight: {
-    right: -10,
-    bottom: 40,
-  },
-  glowEffect: {
-    position: 'absolute',
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: '#f59e0b',
+    width: glowSize,
+    height: glowSize,
+    borderRadius: glowSize / 2,
+    backgroundColor: '#3b82f6',
     zIndex: -1,
   },
   textContainer: {
     alignItems: 'center',
-    maxWidth: 320,
+    maxWidth: SCREEN_WIDTH - 80,
+    paddingHorizontal: 16,
   },
   title: {
-    fontSize: 36,
+    fontSize: getResponsiveSize(28, 32, 36),
     fontWeight: '700',
     color: '#1a1a2e',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: isShortScreen ? 12 : 16,
     letterSpacing: -0.5,
   },
   description: {
-    fontSize: 17,
+    fontSize: getResponsiveSize(15, 16, 17),
     fontWeight: '400',
     color: '#6b7280',
     textAlign: 'center',
-    lineHeight: 26,
+    lineHeight: getResponsiveSize(22, 24, 26),
   },
 });
