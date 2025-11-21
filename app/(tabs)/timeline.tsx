@@ -2,35 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, LogOut } from 'lucide-react-native';
+import { ArrowLeft, Upload } from 'lucide-react-native';
 import { useTheme, lightTheme, darkTheme } from '../../contexts/ThemeContext';
-import { ProfileCard } from '../../components/ProfileCard';
-import { ShareProfile } from '../../components/ShareProfile';
 import { DocumentTimeline3D as DocumentTimeline, Document } from '../../components/DocumentTimeline3D';
 
-interface PatientData {
-  id: string;
-  name: string;
-  dob: string;
-  gender: string;
-  bloodGroup?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-}
-
-export default function ProfileScreen() {
+export default function TimelineScreen() {
   const { isDark } = useTheme();
   const colors = isDark ? darkTheme : lightTheme;
   const router = useRouter();
-
-  const [patientData, setPatientData] = useState<PatientData>({
-    id: 'patient_123',
-    name: 'John Doe',
-    dob: '15/05/1990',
-    gender: 'Male',
-    phone: '+91-8208709752',
-     });
 
   const [documents, setDocuments] = useState<Document[]>([
     {
@@ -84,19 +63,12 @@ export default function ProfileScreen() {
     },
   ]);
 
-  const handleUpdatePatient = (updatedData: Omit<PatientData, 'id'> & { id?: string }) => {
-    setPatientData({ ...patientData, ...updatedData });
-  };
-
   const handleUploadDocument = () => {
     router.push('/(tabs)/upload-document');
   };
 
   const handleViewDocument = (doc: Document) => {
-  };
-
-  const handleLogout = () => {
-    router.replace('/(tabs)/login');
+    console.log('View document:', doc);
   };
 
   return (
@@ -108,11 +80,9 @@ export default function ProfileScreen() {
           <ArrowLeft size={22} color={colors.accent} strokeWidth={2} />
         </TouchableOpacity>
 
-        <Text style={[styles.headerTitle, { color: colors.text }]}>My Profile</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Medical Timeline</Text>
 
-        <TouchableOpacity onPress={handleLogout} style={[styles.headerButton, { backgroundColor: colors.accentLight }]}>
-          <LogOut size={22} color={colors.accent} strokeWidth={2} />
-        </TouchableOpacity>
+        <View style={styles.headerButton} />
       </View>
 
       <ScrollView
@@ -120,11 +90,11 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
-        <ProfileCard data={patientData} onUpdate={handleUpdatePatient} />
-
-        <ShareProfile patientId={patientData.id} patientName={patientData.name} />
-
-        <DocumentTimeline documents={documents} onUpload={handleUploadDocument} onViewDocument={handleViewDocument} />
+        <DocumentTimeline
+          documents={documents}
+          onUpload={handleUploadDocument}
+          onViewDocument={handleViewDocument}
+        />
 
         <View style={styles.spacing} />
       </ScrollView>
