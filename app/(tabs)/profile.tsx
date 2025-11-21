@@ -29,11 +29,8 @@ export default function ProfileScreen() {
     name: 'John Doe',
     dob: '15/05/1990',
     gender: 'Male',
-    bloodGroup: 'O+',
-    phone: '+1 (555) 123-4567',
-    email: 'john.doe@example.com',
-    address: '123 Health Street, Medical City, MC 12345',
-  });
+    phone: '+91-8208709752',
+     });
 
   const [documents, setDocuments] = useState<Document[]>([
     {
