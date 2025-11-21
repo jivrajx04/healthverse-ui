@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MotiView } from 'moti';
 import { X, Save, Check } from 'lucide-react-native';
 import { useTheme, lightTheme, darkTheme } from '../contexts/ThemeContext';
 
@@ -69,12 +68,7 @@ export default function LabTestForm({ patientName, patientId, onSave, onClose }:
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <MotiView
-          from={{ opacity: 0, translateY: 100 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{ type: 'spring', damping: 15 }}
-          style={[styles.content, { backgroundColor: colors.containerBg }]}
-        >
+        <View style={[styles.content, { backgroundColor: colors.containerBg }]}>
           <View style={styles.header}>
             <View>
               <Text style={[styles.title, { color: colors.text }]}>Request Lab Tests</Text>
@@ -229,7 +223,7 @@ export default function LabTestForm({ patientName, patientId, onSave, onClose }:
               </LinearGradient>
             </TouchableOpacity>
           </View>
-        </MotiView>
+        </View>
       </KeyboardAvoidingView>
     </View>
   );

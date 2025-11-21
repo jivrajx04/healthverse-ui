@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MotiView } from 'moti';
 import { X, Plus, Minus, Save } from 'lucide-react-native';
 import { useTheme, lightTheme, darkTheme } from '../contexts/ThemeContext';
 
@@ -73,12 +72,7 @@ export default function PrescriptionForm({ patientName, patientId, onSave, onClo
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <MotiView
-          from={{ opacity: 0, translateY: 100 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{ type: 'spring', damping: 15 }}
-          style={[styles.content, { backgroundColor: colors.containerBg }]}
-        >
+        <View style={[styles.content, { backgroundColor: colors.containerBg }]}>
           <View style={styles.header}>
             <View>
               <Text style={[styles.title, { color: colors.text }]}>Add Prescription</Text>
@@ -112,10 +106,8 @@ export default function PrescriptionForm({ patientName, patientId, onSave, onClo
               </View>
 
               {medications.map((med, index) => (
-                <MotiView
+                <View
                   key={med.id}
-                  from={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
                   style={[styles.medicationCard, { backgroundColor: colors.cardBg, borderColor: colors.cardBorder }]}
                 >
                   <View style={styles.medicationHeader}>
@@ -167,7 +159,7 @@ export default function PrescriptionForm({ patientName, patientId, onSave, onClo
                     placeholder="7 days"
                     placeholderTextColor={colors.textTertiary}
                   />
-                </MotiView>
+                </View>
               ))}
             </View>
 
@@ -204,7 +196,7 @@ export default function PrescriptionForm({ patientName, patientId, onSave, onClo
               </LinearGradient>
             </TouchableOpacity>
           </View>
-        </MotiView>
+        </View>
       </KeyboardAvoidingView>
     </View>
   );
