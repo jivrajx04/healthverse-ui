@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Users, Calendar, Clock, Bell, Settings, Home, QrCode, Sun, Moon, ClipboardList } from 'lucide-react-native';
+import { Users, Calendar, Clock, Bell, Settings, Home, QrCode, Sun, Moon, ClipboardList, User } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTheme, lightTheme, darkTheme } from '../../contexts/ThemeContext';
 import QRScanner from '../../components/QRScanner';
@@ -270,6 +270,21 @@ export default function DoctorHomeScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            onPress={() => router.push('/(tabs)/doctor-appointments')}
+            style={styles.navButton}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.navButtonInner, { backgroundColor: colors.navInactive }]}>
+              <ClipboardList size={24} color={colors.textSecondary} strokeWidth={2} />
+            </View>
+            {pendingCount > 0 && (
+              <View style={styles.navBadge}>
+                <Text style={styles.navBadgeText}>{pendingCount}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
             onPress={() => setShowQRScanner(true)}
             style={styles.qrFloatingButton}
             activeOpacity={0.8}
@@ -285,18 +300,13 @@ export default function DoctorHomeScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => router.push('/(tabs)/doctor-appointments')}
+            onPress={() => router.push('/(tabs)/doctor-profile')}
             style={styles.navButton}
             activeOpacity={0.7}
           >
             <View style={[styles.navButtonInner, { backgroundColor: colors.navInactive }]}>
-              <ClipboardList size={24} color={colors.textSecondary} strokeWidth={2} />
+              <User size={24} color={colors.textSecondary} strokeWidth={2} />
             </View>
-            {pendingCount > 0 && (
-              <View style={styles.navBadge}>
-                <Text style={styles.navBadgeText}>{pendingCount}</Text>
-              </View>
-            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -537,10 +547,10 @@ const styles = StyleSheet.create({
   navContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-around',
     borderRadius: 30,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 14,
-    gap: 16,
     borderWidth: 1,
     shadowColor: '#10b981',
     shadowOffset: { width: 0, height: 8 },
