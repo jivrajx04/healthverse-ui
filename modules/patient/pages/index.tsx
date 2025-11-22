@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -28,11 +28,15 @@ import {
   lightTheme,
   darkTheme,
 } from '@/modules/shared/contexts/ThemeContext';
+import NotificationPanel from '@/components/NotificationPanel';
 
 export default function PatientHomeScreen() {
   const router = useRouter();
   const { isDark, toggleTheme } = useTheme();
   const colors = isDark ? darkTheme : lightTheme;
+
+  const [showNotifications, setShowNotifications] = useState(false);
+  const unreadCount = 2;
 
   const stats = [
     { label: 'Appointments', value: '3', icon: Calendar, color: '#3b82f6' },
@@ -93,6 +97,7 @@ export default function PatientHomeScreen() {
               )}
             </TouchableOpacity>
             <TouchableOpacity
+              onPress={() => setShowNotifications(true)}
               style={[
                 styles.iconButton,
                 {
@@ -102,6 +107,13 @@ export default function PatientHomeScreen() {
               ]}
             >
               <Bell size={22} color={colors.textSecondary} strokeWidth={2} />
+              {unreadCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -323,6 +335,17 @@ export default function PatientHomeScreen() {
           </TouchableOpacity>
         </View>
       </View>
+      {showNotifications && (
+        <TouchableOpacity
+          style={styles.backdrop}
+          activeOpacity={1}
+          onPress={() => setShowNotifications(false)}
+        />
+      )}
+      <NotificationPanel
+        visible={showNotifications}
+        onClose={() => setShowNotifications(false)}
+      />
     </View>
   );
 }
@@ -537,5 +560,31 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 8,
     elevation: 8,
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#EF4444',
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontFamily: 'Inter-Bold',
+  },
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 999,
   },
 });
