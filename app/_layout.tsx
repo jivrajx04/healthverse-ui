@@ -4,7 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { SplashScreen } from 'expo-router';
 import { useFrameworkReady } from '../hooks/useFrameworkReady';
-import { ThemeProvider } from '../contexts/ThemeContext';
+import { ThemeProvider } from '../modules/shared/contexts/ThemeContext';
+import ErrorBoundary from './ErrorBoundary';
 
 let Inter_400Regular: any;
 let Inter_500Medium: any;
@@ -41,6 +42,53 @@ if (typeof window === 'undefined' || !('document' in window)) {
 
 SplashScreen.preventAutoHideAsync();
 
+// Development-only: sanitize renderer versions so React DevTools doesn't crash
+// when a renderer registers with an empty or missing version string.
+// This is a defensive runtime fix for dev tools only and does not affect production.
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  try {
+    const hook = (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__;
+    if (hook) {
+      const maybeRenderers =
+        hook.renderers ||
+        hook._renderers ||
+        hook._reactInternals ||
+        hook._renderersList;
+      if (maybeRenderers) {
+        // Map-like or Set-like
+        try {
+          if (typeof maybeRenderers.forEach === 'function') {
+            maybeRenderers.forEach((r: any) => {
+              try {
+                if (r && (r.version === '' || r.version == null))
+                  r.version = '0.0.0';
+              } catch (_) {}
+            });
+          } else if (typeof maybeRenderers.values === 'function') {
+            for (const r of maybeRenderers.values()) {
+              try {
+                if (r && (r.version === '' || r.version == null))
+                  r.version = '0.0.0';
+              } catch (_) {}
+            }
+          } else if (Array.isArray(maybeRenderers)) {
+            maybeRenderers.forEach((r: any) => {
+              try {
+                if (r && (r.version === '' || r.version == null))
+                  r.version = '0.0.0';
+              } catch (_) {}
+            });
+          }
+        } catch (_) {
+          // ignore any unexpected shapes
+        }
+      }
+    }
+  } catch (_) {
+    // swallow any errors so this defensive code never breaks the app
+  }
+}
+
 export default function RootLayout() {
   useFrameworkReady();
 
@@ -65,17 +113,21 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
-
+  // Always render the app so runtime errors surface in the simulator/device
+  // and the app doesn't stay on a blank white screen while fonts load.
   return (
-    <ThemeProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="light" />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(patient)" />
+          <Stack.Screen name="(doctor)" />
+          <Stack.Screen name="(lab)" />
+          <Stack.Screen name="(common)" />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="light" />
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
