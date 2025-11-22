@@ -24,12 +24,6 @@ export default function SearchBar({ value, onChangeText, onClear, onBack, placeh
       transition={{ type: 'timing', duration: 400 }}
       style={styles.container}
     >
-      <View
-        style={[
-          styles.searchContainer,
-          { backgroundColor: colors.cardBg, borderColor: isFocused ? colors.accent : colors.cardBorder },
-        ]}
-      >
         {onBack && (
           <TouchableOpacity
             onPress={onBack}
@@ -40,6 +34,13 @@ export default function SearchBar({ value, onChangeText, onClear, onBack, placeh
           </TouchableOpacity>
         )}
 
+      <View
+        style={[
+          styles.searchContainer,
+          { backgroundColor: colors.cardBg, borderColor: isFocused ? colors.accent : colors.cardBorder },
+        ]}
+      >
+      
         <View style={[styles.iconWrapper, { backgroundColor: colors.accentLight }]}>
           <Search size={20} color={colors.accent} strokeWidth={2} />
         </View>
